@@ -1,0 +1,14 @@
+$.ajax({
+	url: "http://localhost:5000/users",
+	type: "get",
+	data: {
+		first_name: "User",
+		last_name: "One"
+	},
+	success: function(response) {
+		console.log(response);
+	},
+	error: function(xhr) {
+		console.log(xhr);
+	}
+});

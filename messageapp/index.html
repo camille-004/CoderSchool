@@ -1,0 +1,118 @@
+<html>
+	<head>
+		<!-- <script src="./jquery.js"></script> -->
+		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+		<!-- 
+		-->
+	</head>
+	<body>
+		<div>
+			First name:  <br>
+			<input id="first_name" type="text" name="first_name"><br>
+			Last name:  <br>
+			<input id="last_name" type="text" name="last_name"><br>
+			<div id="submit_btn1">Submit</div>
+			<!-- Create a new div here for the output in TODO 3 -->
+			<p id="output">User ID: </p>
+		</div>
+		<div>
+			<input id="message" type="text" name="send_message"><br>
+			<input id="recipient_id" type="text" name="recip_id"><br>
+			<input id="sender_id" type="text" name="sender_id"><br>
+			<div id="submit_btn2">Send</div>
+
+		</div>
+		<div>
+			<input id="my_id" type="text" name="myid"><br>
+			<div id="submit_btn3">Get messages</div>
+
+			<table>
+				<tbody id="table_body">
+				</tbody>
+			</table>
+
+		</div>
+	</body>
+
+
+</html>
+
+		<script>
+			var updateOutput1 = function(first_name, last_name) {
+				$.ajax({
+					url: "http://localhost:5000/users",
+					type: "get",
+					data: {
+						first_name: first_name, // Replace "User" with variable firstName
+						last_name: last_name // replace "One" variable lastName
+					},
+					success: function(response) {
+						// console.log(response);
+						$('#output').text("User ID: " + response.id);
+					},
+					error: function(xhr) {
+						console.log(xhr);
+					}
+				});
+			}
+
+			var send_message = function() {
+				var message = $('#message').val();
+				var recipient = $('#recipient_id').val();
+				var sender = $('#sender_id').val();
+				
+				$.ajax({
+					url: "http://localhost:5000/users/" + recipient + "/message",
+					type: "post",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					data: JSON.stringify({message: message, sender_id: sender}),
+					success: function(response) {
+						alert("Message sent successfully!");
+					},
+					error: function(xhr) {
+						alert("Message failed to send." + xhr);
+					}
+				});
+			}
+
+			var get_messages = function() {
+				var my_id = $('#my_id').val();
+
+				$.ajax({
+					url: "http://localhost:5000/users/" + my_id + "/message",
+					type: "get",
+					success: function(response) {
+						$('#table_body').empty();
+						for (var i in response) {
+							var message = response[i];
+							var tr = "<tr><td>" + message.sender_first_name + " " + message.sender_last_name + "</td><td>" + message.message + "</td></tr>";
+							$('#table_body').append(tr);
+						}
+						
+					},
+					error: function(xhr) {
+						alert("Message failed to send." + xhr);
+					}
+				});	
+			}
+
+
+
+			$(document).ready(function() {
+				$("#submit_btn1").click(function() {
+					var first_name = $('#first_name').val();
+					var last_name = $('#last_name').val();
+					updateOutput1(first_name, last_name);
+				});
+
+				$("#submit_btn2").click(function() {
+					send_message();
+				});
+
+				$("#submit_btn3").click(function() {
+					get_messages();
+				});
+			});
+		</script>
