@@ -1,3 +1,7 @@
+'''
+Node class. Represents a node in a graph.
+'''
+
 class Node:
     
     def __init__(self, n_id, val, neighbors = []):

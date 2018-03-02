@@ -1,6 +1,14 @@
 import pymysql.cursors, sys
 from node import Node
 from neighbor import Neighbor
+'''
+This program reads in an integer representing a user_id from the command line.
+It then reads all of the info of that user and fetches all "friends" 
+from a MySQL database table and prints it out to the console.
+
+This exercise is to practice how to store a graph of nodes and edges into 
+a database that can be fetched later.
+'''
 
 CONFIG = {'host': '127.0.0.1',
 		  'user': 'root',
@@ -12,6 +20,17 @@ CONFIG = {'host': '127.0.0.1',
 
 GET_NODE_QUERY = "SELECT * FROM nodes WHERE id = %s"
 GET_NEIGHBORS_FROM_NODE = "SELECT id, val FROM neighbors JOIN nodes ON neighbors.neighbor_id = nodes.id WHERE node_id = %s;"
+
+def main(args):
+	# Step 1: Read a node_id from the command line
+	node_id = None
+	try:
+		node_id = int(args[1])
+	except ValueError as e:
+		print "Expecting Integer Input: " + str(e)
+		exit()
+	node_graph = get_node_graph(node_id)
+	print node_graph.id, node_graph.val, node_graph.neighbors
 
 def exec_query(query, params):
 	# This function should return either a List containing 1 item (fetchone())
@@ -42,17 +61,6 @@ def exec_query_list(query, params):
 			return result
 	finally:
 		connection.close()
-
-def main(args):
-	# Step 1: Read a node_id from the command line
-	node_id = None
-	try:
-		node_id = int(args[1])
-	except ValueError as e:
-		print "Expecting Integer Input: " + str(e)
-		exit()
-	node_graph = get_node_graph(node_id)
-	print node_graph.id, node_graph.val, node_graph.neighbors
 
 def get_node_graph(node_id):
 	# Gets a graph with the node with ID as entry point to the graph
