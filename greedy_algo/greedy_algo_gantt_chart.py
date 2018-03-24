@@ -1,4 +1,11 @@
-import sys
+import sys, datetime, time
+from random import randint
+from datetime import timedelta
+
+import plotly.plotly as py
+import plotly.figure_factory as ff
+
+
 '''
 ########################################################################
 Greedy interval scheduling program.
@@ -9,8 +16,9 @@ and eventually processing them until either no more can be processed, or the alo
 exceded.
 '''
 class Job:
-	def __init__(self, job_length):
+	def __init__(self, job_length, job_id):
 		self.job_length = job_length
+		self.job_id = job_id
 
 def main():
 	job_queue = []
@@ -19,6 +27,8 @@ def main():
 	jobs = get_jobs()
 	total = 0
 
+	# create_gantt_chart(jobs, 'greedy-algo-gantt-chart-before')
+
 	while not terminate:
 		jobs, job_queue, total_execution_time, terminate = add_min_jobs(jobs, job_queue, total_execution_time)
 	
@@ -26,6 +36,11 @@ def main():
 	print 'Number of jobs unprocessed: ' + str(len(jobs))
 	total = sum([j.job_length for j in job_queue])
 	print 'Time to execute jobs: ' + str(total)
+
+	print len(jobs)
+	print len(job_queue)
+	
+	create_gantt_chart(job_queue + jobs, 'greedy-algo-gantt-chart-after')
 
 def add_min_jobs(jobs, job_queue, total_execution_time):
 	min_job = jobs[0]
@@ -42,42 +57,35 @@ def add_min_jobs(jobs, job_queue, total_execution_time):
 			return jobs, job_queue, total_execution_time, False
 	else:
 		return jobs, job_queue, total_execution_time, True
-	
-def print_job_list(jobs):
-	print '##############################'
-	for job in jobs:
-		print job.job_length
-	print '##############################'
 
-
+def create_gantt_chart(jobs, name):
+	df, i, start_date = [], 1, datetime.date.today()
+	for job in jobs:	
+		df.append(dict(Task="Job " + str(job.job_id), Start=start_date.isoformat(), Finish=(start_date + timedelta(days=job.job_length)).isoformat()))
+		i = i + 1
+		start_date = start_date + timedelta(days=job.job_length)
+	fig = ff.create_gantt(df)
+	layout = {
+		'shapes': [
+		{
+			'type': 'line',
+			'x0': 1,
+			'y0': 0,
+			'x1': 1,
+			'y1': 2,
+			'line': {
+				'color': 'rgb(55, 128, 191)',
+				'width': 3,
+			},
+		}]
+	}
+	py.plot(fig, filename=name, world_readable=True)
 
 def get_jobs():
-	# 193 is the max
 	jobs = []
-	jobs.append(Job(18))
-	jobs.append(Job(13))
-	jobs.append(Job(8))
-	jobs.append(Job(3))
-	jobs.append(Job(8))
-	jobs.append(Job(17))
-	jobs.append(Job(3))
-	jobs.append(Job(11))
-	jobs.append(Job(18))
-	jobs.append(Job(8))
-	jobs.append(Job(8))
-	jobs.append(Job(3))
-	jobs.append(Job(16))
-	jobs.append(Job(5))
-	jobs.append(Job(5))
-	jobs.append(Job(13))
-	jobs.append(Job(8))
-	jobs.append(Job(9))
-	jobs.append(Job(1))
-	jobs.append(Job(18))
-	return jobs	
-
-
-
+	for i in range(30):
+		jobs.append(Job(randint(1, 21), i))
+	return jobs
 
 if __name__ == '__main__':
 	main()

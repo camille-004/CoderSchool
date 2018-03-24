@@ -1,0 +1,2 @@
+Password: root
+mysql -h localhost -P3306 -Dcoder_school -uroot -p

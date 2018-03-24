@@ -1,4 +1,10 @@
-import sys
+import sys	
+import datetime
+from datetime import timedelta
+
+import plotly.plotly as py
+import plotly.figure_factory as ff
+
 '''
 ########################################################################
 Greedy interval scheduling program.
@@ -27,6 +33,8 @@ def main():
 	total = sum([j.job_length for j in job_queue])
 	print 'Time to execute jobs: ' + str(total)
 
+	create_gantt_chart(job_queue)
+
 def add_min_jobs(jobs, job_queue, total_execution_time):
 	min_job = jobs[0]
 	for job in jobs:
@@ -42,14 +50,15 @@ def add_min_jobs(jobs, job_queue, total_execution_time):
 			return jobs, job_queue, total_execution_time, False
 	else:
 		return jobs, job_queue, total_execution_time, True
-	
-def print_job_list(jobs):
-	print '##############################'
-	for job in jobs:
-		print job.job_length
-	print '##############################'
 
-
+def create_gantt_chart(jobs):
+	df, i, start_date = [], 1, datetime.date.today()
+	for job in jobs:	
+		df.append(dict(Task="Job " + str(i), Start=start_date.isoformat(), Finish=(start_date + timedelta(days=job.job_length)).isoformat()))
+		i = i + 1
+		start_date = start_date + timedelta(days=job.job_length)
+	fig = ff.create_gantt(df)
+	py.plot(fig, filename='greedy-algo-gantt-chart', world_readable=True)
 
 def get_jobs():
 	# 193 is the max
