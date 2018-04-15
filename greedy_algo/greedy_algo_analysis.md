@@ -1,5 +1,4 @@
-
-# Title
+# Greedy Algorithms
 
 ## What is a "greedy" algorithm?
 A greedy algorithm goes about solving a problem by breaking it down into different simple problems that can be solved independently.  When all of these smaller problems are solved, the solutions would combine and form one that can be "globally optimal."
@@ -28,9 +27,34 @@ Suppose there is one street on the route that is 100 yards long, and another 200
 
 Choosing the 100-yard street solves a local problem - you have solved one part of the global problem in order to get closer to reaching the global solution.  
 
-However, after taking the 100-yard 
+However, after taking the 100-yard street, you must take a road that is 500 yards long.  On the contrary, the street that comes after the 200-yard one is only 250 yards long.  That set of streets yields a 450-yard route, as opposed to the 600-yard route you must take.  You can no longer reach your globally optimal solution because you are not reaching your destination by travelling the smallest distance possible.
+
+Even though you solved one part of the problem - taking the shortest possible road in the beginning - it did not lead to the globally optimal solution.
 
 
 ## Real world problem
-### Interval scheduling (the code you wrote)
+### Interval scheduling 
+Finally, consider a set of jobs in a company.  The global problem is that there is only a limited amount of time to complete the greatest number of jobs possible.
+
+A reasonable approach would likely be to complete the jobs that take the least time first so that a larger number of jobs would fit in the allocated time slot.  We would begin with the job that takes the shortest amount of time and work towards the job with the largest time until time runs out.  This process is emulated by the following Python function: 
+```python
+def add_min_jobs(jobs, job_queue, total_execution_time):
+	min_job = jobs[0]
+	for job in jobs:
+		if job.job_length < min_job.job_length:
+			min_job = job
+	if min_job.job_length <= total_execution_time:
+		jobs.remove(min_job)
+		job_queue.append(min_job)
+		total_execution_time -= min_job.job_length
+		if total_execution_time == 0 or len(jobs) == 0:
+			return jobs, job_queue, total_execution_time, True
+		else:
+			return jobs, job_queue, total_execution_time, False
+	else:
+		return jobs, job_queue, total_execution_time, True
+```
+This function iterates through a list of ```Job``` objects, ```jobs```, with time length and ID properties (Python instance variables ```job_length``` and ```job_id```).  It first uses the zeroth element of the list as the shortest-time job, ```min_job```, as a basis for comparison - if the next element has a smaller ```job_length``` value than does the zeroth element, it replaces it as the new ```min_job```.  The element is then removed from ```jobs``` and added to a ```job_queue```.  This process repeats until either the time is up or all respective Jobs have been analyzed (contingent on how much time is given).  
+
+By the end of the algorithm, the ```job_queue``` contains all analyzed ```Job```s, ordered by how short their times are.  The code produces a Gantt chart that illustrates the start and finish dates of each ```Job``` from the queue based on their times.  The following shows an example:
 ![Greedy Algo Scheduling](gantt-chart-greedy-algo/greedy-algo-gantt-chart.png)
